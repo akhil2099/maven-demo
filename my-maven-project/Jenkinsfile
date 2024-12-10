@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_TOOL = tool name: 'Maven', type: 'Tool'  // Points to the Maven tool installed in Jenkins
+       MAVEN_TOOL = 'Maven 3.8.5'
     }
 
     stages {
