@@ -16,7 +16,6 @@ pipeline {
             steps {
                 // Perform SonarQube analysis
                 withSonarQubeEnv(SONARQUBE_SERVER) {
-		    sh "${tool MAVEN_TOOL}/bin/mvn -f ./my-maven-project/pom.xml clean verify sonar:sonar"
                     sh "${tool MAVEN_TOOL}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=maven-project"
                 }
             }
