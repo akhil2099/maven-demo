@@ -11,6 +11,7 @@ pipeline {
         DOCKER_HUB_CREDENTIALS_ID = "docker-credential-id"  // Credentials ID in Jenkins
     }
 
+<<<<<<< HEAD
     stages {
         stage('Initialize') {
             steps {
@@ -20,6 +21,21 @@ pipeline {
                     env.PATH = "${dockerHome}/bin:${env.PATH}"
                     echo "Docker initialized. PATH is updated."
                 }
+=======
+    stage('SonarQube Analysis') {
+      steps {
+        script {
+          withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
+            // Navigate to the correct directory for SonarQube analysis
+            dir('my-maven-project') {
+              // Run SonarQube analysis with the token
+              sh """
+                mvn clean verify sonar:sonar \
+                -Dsonar.projectKey=maven-demo \
+                -Dsonar.login=${SONAR_TOKEN} \
+                -Dsonar.host.url=http://localhost:9000
+              """
+>>>>>>> eeb81fe
             }
         }
 
