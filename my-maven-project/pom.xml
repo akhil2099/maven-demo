@@ -11,6 +11,12 @@
 
     <build>
         <plugins>
+
+	    <plugin>
+            	<groupId>org.sonarsource.scanner.maven</groupId>
+           	 <artifactId>sonar-maven-plugin</artifactId>
+            	<version>3.9.0.2155</version> <!-- Use the latest compatible version -->
+            </plugin>
             <!-- Compiler plugin to compile Java code -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
