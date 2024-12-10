@@ -22,7 +22,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('YourSonarQubeInstanceName') {
+                withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
                         dir('my-maven-project') {
                             sh """
