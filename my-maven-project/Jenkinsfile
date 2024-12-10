@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-       MAVEN_TOOL = 'Maven'
+       MAVEN_TOOL = tool name: 'Maven 3.9.9', type: 'Tool'
     }
 
     stages {
