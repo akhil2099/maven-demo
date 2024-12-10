@@ -1,68 +1,63 @@
 pipeline {
-  agent any
+    agent any
 
-  tools {
-    maven 'M3'  // This refers to the Maven tool installed on Jenkins (make sure 'M3' is configured in Jenkins tools)
-  }
-
-  stages {
-    stage('Checkout Code') {
-      steps {
-        git branch: 'main', url: 'https://github.com/akhil2099/maven-demo.git'
-      }
+    tools {
+        maven 'M3'
     }
 
-    stage('Build') {
-      steps {
-        script {
-          // Navigate to the directory containing pom.xml
-          dir('my-maven-project') {
-            // Use Maven to clean and package the project, skipping tests
-            sh 'mvn -B -DskipTests clean package'
-          }
-        }
-      }
-    }
-
-    stage('SonarQube Analysis') {
-      steps {
-        script {
-          withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
-            // Navigate to the correct directory for SonarQube analysis
-            dir('my-maven-project') {
-              // Run SonarQube analysis with the token
-              sh """
-                mvn clean verify sonar:sonar \
-                -Dsonar.projectKey=maven-demo \
-                -Dsonar.login=${SONAR_TOKEN} \
-                -Dsonar.host.url=http://sonarqube-sonarqube-1:9000
-              """
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/akhil2099/maven-demo.git'
             }
-          }
         }
-      }
-    }
 
-    stage('Quality Gate') {
-      steps {
-        timeout(time: 15, unit: 'MINUTES') {  // Increased timeout
-          script {
-            def qualityGate = waitForQualityGate()
-            if (qualityGate.status != 'OK') {
-              error "Quality Gate failed: ${qualityGate.status}"
+        stage('Build') {
+            steps {
+                dir('my-maven-project') {
+                    sh 'mvn -B -DskipTests clean package'
+                }
             }
-          }
         }
-      }
-    }
-  }
 
-  post {
-    success {
-      echo 'Pipeline completed successfully!'
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('YourSonarQubeInstanceName') {
+                    withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
+                        dir('my-maven-project') {
+                            sh """
+                              mvn clean verify sonar:sonar \
+                              -Dsonar.projectKey=maven-demo \
+                              -Dsonar.login=${SONAR_TOKEN} \
+                              -Dsonar.host.url=http://sonarqube-sonarqube-1:9000
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 15, unit: 'MINUTES') {
+                    script {
+                        def qualityGate = waitForQualityGate()
+                        if (qualityGate.status != 'OK') {
+                            error "Quality Gate failed: ${qualityGate.status}"
+                        }
+                    }
+                }
+            }
+        }
     }
-    failure {
-      echo 'Pipeline failed. Check the logs for more details.'
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs for more details.'
+        }
     }
-  }
 }
+
