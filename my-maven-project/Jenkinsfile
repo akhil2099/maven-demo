@@ -29,7 +29,7 @@ pipeline {
         script {
           withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
             // Navigate to the correct directory for SonarQube analysis
-            dir('maven-demo/my-maven-project') {
+            dir('my-maven-project') {
               // Run SonarQube analysis with the token
               sh """
                 mvn clean verify sonar:sonar \
