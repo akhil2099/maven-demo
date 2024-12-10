@@ -1,9 +1,10 @@
 pipeline {
     agent any
+
     environment {
-        SONARQUBE_SERVER = 'SonarQube'
-        MAVEN_TOOL = 'Maven 3.8.5'
+        MAVEN_TOOL = tool name: 'Maven', type: 'Tool'  // Points to the Maven tool installed in Jenkins
     }
+
     stages {
         stage('Checkout Code') {
             steps {
@@ -12,10 +13,16 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv(SONARQUBE_SERVER) {
-                    sh """
-                        ${tool MAVEN_TOOL}/bin/mvn clean verify sonar:sonar -Dsonar.projectKey=maven-demo -Dsonar.host.url=http://localhost:9000
-                    """
+                script {
+                    withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
+                        // Run SonarQube analysis with the token
+                        sh """
+                            mvn clean verify sonar:sonar \
+                            -Dsonar.projectKey=maven-demo \
+                            -Dsonar.login=${SONAR_TOKEN} \
+                            -Dsonar.host.url=http://localhost:9000
+                        """
+                    }
                 }
             }
         }
@@ -33,10 +40,11 @@ pipeline {
         }
         stage('Build Project') {
             steps {
-                sh "${tool MAVEN_TOOL}/bin/mvn clean package"
+                sh "${MAVEN_TOOL}/bin/mvn clean package"  // Build the project after quality gate pass
             }
         }
     }
+
     post {
         success {
             echo 'Pipeline completed successfully!'
