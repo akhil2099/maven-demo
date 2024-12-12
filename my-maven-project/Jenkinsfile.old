@@ -22,11 +22,21 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                dir('my-maven-project') {
-                    sh 'mvn clean verify sonar:sonar'
+                withSonarQubeEnv('SonarQube') {
+                    withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
+                        dir('my-maven-project') {
+                            sh """
+                              mvn clean verify sonar:sonar \
+                              -Dsonar.projectKey=maven-demo \
+                              -Dsonar.login=${SONAR_TOKEN} \
+                              -Dsonar.host.url=http://sonarqube-sonarqube-1:9000
+                            """
+                        }
+                    }
                 }
             }
         }
+
     }
 
     post {
