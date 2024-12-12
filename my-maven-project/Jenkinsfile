@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'm2'
+        maven 'M3'
     }
 
     stages {
@@ -22,15 +22,21 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                dir('my-maven-project') {
-                    sh '''
-                	mvn clean verify sonar:sonar \
-                	-Dsonar.projectKey=maven-demo \
-                	-Dsonar.host.url=http://172.19.0.3:9000
-            	      '''
+                withSonarQubeEnv('SonarQube') {
+                    withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
+                        dir('my-maven-project') {
+                            sh """
+                              mvn clean verify sonar:sonar \
+                              -Dsonar.projectKey=maven-demo \
+                              -Dsonar.login=${SONAR_TOKEN} \
+                              -Dsonar.host.url=http://sonarqube-sonarqube-1:9000
+                            """
+                        }
+                    }
                 }
             }
         }
+
     }
 
     post {
