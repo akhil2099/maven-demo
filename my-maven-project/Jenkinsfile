@@ -23,6 +23,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 dir('my-maven-project') {
+		    sh  'mvn help:effective-settings'
                     sh 'mvn clean verify sonar:sonar'
                 }
             }
