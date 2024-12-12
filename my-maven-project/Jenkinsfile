@@ -23,8 +23,11 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 dir('my-maven-project') {
-		    sh  'mvn help:effective-settings'
-                    sh 'mvn clean verify sonar:sonar'
+                    sh '''
+                	mvn clean verify sonar:sonar \
+                	-Dsonar.projectKey=maven-demo \
+                	-Dsonar.host.url=http://172.19.0.3:9000
+            	      '''
                 }
             }
         }
