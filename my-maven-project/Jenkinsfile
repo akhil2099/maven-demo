@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'M3'
+        maven 'm2'
     }
 
     stages {
@@ -15,28 +15,28 @@ pipeline {
         stage('Build') {
             steps {
                 dir('my-maven-project') {
-                    sh 'mvn -B -DskipTests clean package'
-                }
+		sh '''
+mvn clean verify sonar:sonar \
+  -Dsonar.projectKey=project1 \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=sqp_f0e93ba5d09c45d56ef61f46d0ca3b8106754840
+ 		'''
+
+               }
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'SonarQube', variable: 'SONAR_TOKEN')]) {
-                        dir('my-maven-project') {
-                            sh """
-                              mvn clean verify sonar:sonar \
-                              -Dsonar.projectKey=maven-demo \
-                              -Dsonar.login=${SONAR_TOKEN} \
-                              -Dsonar.host.url=http://sonarqube-sonarqube-1:9000
-                            """
-                        }
-                    }
-                }
-            }
-        }
-
+       //stage('SonarQube Analysis') {
+       //    steps {
+       //        dir('my-maven-project') {
+       //            sh '''
+    //          	mvn clean verify sonar:sonar \
+    //         	-Dsonar.projectKey=maven-demo \
+       //         	-Dsonar.host.url=http://172.19.0.3:9000
+       //    	      '''
+       //       }
+       //     }
+    // }
     }
 
     post {
